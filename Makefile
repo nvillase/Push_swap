@@ -1,28 +1,58 @@
-NAME = PUSH_SWAP
-CC = gcc
-CCFLAG = -g -Wall -Wextra -Werror
-LIB = ./include/libft/libft.a
+SRC = ./srcs/main.c ./srcs/checks.c ./srcs/utils.c ./srcs/instructions.c ./srcs/num_utils.c ./srcs/algo.c
+BSRCS = ./srcs/bonus/checker.c ./srcs/bonus/silent_instructions.c ./srcs/checks.c ./srcs/utils.c ./srcs/instructions.c ./srcs/num_utils.c ./srcs/algo.c
+	
+OBJS = $(SRC:.c=.o)
+BOBJS = $(BSRCS:.c=.o)
 RM = rm -f
-SRCS =  
-OBJS = $(SRCS:.c=.o)
-CMD = -L ./include/libft/ -lft
+NAME = push_swap
+BNAME = checker
+LIB = ./includes/libft/libft.a
+CC = gcc
+CFLAGS = -Wall -Wextra -Werror -g
 
-all: $(LIB) $(NAME)
 
-$(LIB):
-	make -C ./include/libft/ all
+all : author ${LIB} $(NAME)
 
-.c.o:
-	$(CC) $(CCFLAG) $(CMD) -c $< -o $(<:.c=.o)
+bonus : author ${LIB} $(NAME) $(BNAME)
 
-$(NAME): $(OBJS) $(LIB)
-	$(CC) $(CCFLAG) $(OBJS) $(CMD) -o $(NAME)
+${LIB} :
+	@make -s -C ./includes/libft/ all
+	@echo Libft is ready.
 
-clean:
-	$(RM) $(OBJS)
-	make -C ./include/libft/ clean
+author :
+	@echo "Author :\tnvillase"
+	@echo "Project :\t$(NAME)"
+	@echo ---------------------------------------------------------
 
-fclean: clean
-	$(RM) $(NAME)
+PRINT_NAME = 1
 
-re: fclean all
+%.o: %.c
+	@if [ $(PRINT_NAME) -eq 1 ]; then echo -n "$(NAME) : "; fi
+	@$(CC) $(CFLAGS) -c $< -o $@
+	@echo -n "\033[32m✔\033[0m"
+	@$(eval PRINT_NAME = 0)
+
+$(NAME) : $(OBJS) ${LIB}
+	@${CC} ${CFLAGS} $(OBJS) -L./includes/libft -lft -o $(NAME)
+	@echo
+	@echo $(NAME) is runnable.
+
+$(BNAME) : $(BOBJS) ${LIB}
+	@${CC} ${CFLAGS} $(BOBJS) -L./includes/libft -lft -o $(BNAME)
+	@echo
+	@echo $(BNAME) is runnable.
+
+clean :
+	@${RM} ${OBJS} ${BOBJS}
+	@make -s -C ./includes/libft/ clean
+	@echo Object files removed.
+
+fclean : clean
+	@${RM} $(NAME) $(BNAME)
+	@make -s -C ./includes/libft/ fclean
+	@echo ${NAME} removed.
+
+re : author fclean all
+		@echo Rebuild done.
+
+.PHONY: all clean fclean re bonus
